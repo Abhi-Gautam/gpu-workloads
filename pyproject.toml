@@ -1,0 +1,24 @@
+[project]
+name = "gpu-workloads-lab"
+version = "0.1.0"
+description = "Temporal + Volcano GPU workload lab (real GPUs; no fake capacity as learning path)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "temporalio>=1.31.0,<2",
+  "python-dotenv>=1.0.0",
+  "kubernetes>=31.0.0",
+]
+
+[project.scripts]
+gpu-lab = "gpu_lab.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gpu_lab"]
+
+[tool.uv]
+package = true
