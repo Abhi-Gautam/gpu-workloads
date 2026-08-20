@@ -7,3 +7,5 @@ That is the seam this lab is for. Temporal stays the control plane for the job a
 The first cuts will be small enough to see gang block, fair queueing, and preempt-with-resume in the open. The direction is not one demo job — it is GPU work as something the same orchestration engine can submit, watch, cancel, and resume without building a satellite queue of its own.
 
 These are experiments.
+
+Local classroom (fake `nvidia.com/gpu` on kind — mechanisms only): `docs/local-kind-lab.md`.
