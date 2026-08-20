@@ -1,0 +1,58 @@
+# Fake device plugin: same resource name as NVIDIA (nvidia.com/gpu), no hardware.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fake-gpu-device-plugin
+  namespace: kube-system
+  labels:
+    app: fake-gpu-device-plugin
+spec:
+  selector:
+    matchLabels:
+      app: fake-gpu-device-plugin
+  template:
+    metadata:
+      labels:
+        app: fake-gpu-device-plugin
+    spec:
+      priorityClassName: system-node-critical
+      # Only workers labeled for the lab (kind workers carry role=gpu).
+      nodeSelector:
+        role: gpu
+      tolerations:
+        - operator: Exists
+          effect: NoExecute
+        - operator: Exists
+          effect: NoSchedule
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: plugin
+          image: gpu-lab/fake-gpu-device-plugin:local
+          imagePullPolicy: Never
+          args: ["-gpus", "1"]
+          env:
+            - name: PLUGIN_DIR
+              value: /var/lib/kubelet/device-plugins
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            privileged: true
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+            type: DirectoryOrCreate
+---
+# Optional: taint GPU workers like a real GPU node group (pods must tolerate).
+# Applied by scripts/local-up.sh after nodes are Ready — kept here as reference:
+#   kubectl taint nodes -l role=gpu nvidia.com/gpu=true:NoSchedule --overwrite
