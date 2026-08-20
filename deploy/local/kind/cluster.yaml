@@ -1,0 +1,15 @@
+# Local classroom cluster: 1 control-plane + 2 workers (two "GPU" nodes).
+# Not a substitute for real EKS+T4 — teaches device-plugin + Volcano mechanics.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: gpu-lab-local
+nodes:
+  - role: control-plane
+  - role: worker
+    labels:
+      role: gpu
+      lab.gpu/fake: "true"
+  - role: worker
+    labels:
+      role: gpu
+      lab.gpu/fake: "true"

@@ -1,0 +1,5 @@
+# Minimal Volcano for local kind. Pin chart version at install time in scripts.
+basic:
+  image_pull_secret: ""
+custom:
+  metrics_enable: false

@@ -1,0 +1,46 @@
+# Volcano gang: needs 2 GPUs at once (minAvailable=2).
+# With only 1 free GPU total, BOTH tasks stay Pending.
+# With 2 free GPUs (2 workers × 1), both run.
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: gang-sleep
+  namespace: gpu-lab
+spec:
+  minAvailable: 2
+  schedulerName: volcano
+  queue: default
+  policies:
+    - event: PodEvicted
+      action: RestartJob
+  tasks:
+    - replicas: 2
+      name: worker
+      template:
+        metadata:
+          labels:
+            lab: gang-sleep
+        spec:
+          restartPolicy: Never
+          tolerations:
+            - key: nvidia.com/gpu
+              operator: Exists
+              effect: NoSchedule
+          containers:
+            - name: c
+              image: busybox:1.36
+              command:
+                - sh
+                - -c
+                - |
+                  echo "gang worker host=$(hostname) devices=${FAKE_NVIDIA_VISIBLE_DEVICES}"
+                  sleep 30
+              resources:
+                limits:
+                  nvidia.com/gpu: "1"
+                  cpu: 100m
+                  memory: 64Mi
+                requests:
+                  nvidia.com/gpu: "1"
+                  cpu: 50m
+                  memory: 32Mi
